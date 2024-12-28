@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/Niahh/Advent-Of-Code/2024/day1"
 )
 

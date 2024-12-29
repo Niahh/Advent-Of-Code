@@ -14,3 +14,13 @@ func AppendStringToIntArray(array []int, element string) []int {
 	array = append(array, el)
 	return array
 }
+
+func ConvertStringArrayToInt(strArray []string) []int {
+	intArray := make([]int, len(strArray))
+	for i, elem := range strArray {
+		intElem, err := strconv.Atoi(elem)
+		Check(err)
+		intArray[i] = intElem
+	}
+	return intArray
+}

@@ -13,19 +13,23 @@ import (
 //go:embed input.txt
 var input string
 
-func isLevelIncrOrDecr(level []int) bool {
-	if isLevelIncr(level) || isLevelDecr(level) {
+type report struct {
+	levels []int
+}
+
+func (r report) isLevelsIncrOrDecr() bool {
+	if r.isLevelIncr() || r.isLevelDecr() {
 		return true
 	}
-
 	return false
 }
-func isLevelIncr(level []int) bool {
-	return slices.IsSorted(level)
+
+func (r report) isLevelIncr() bool {
+	return slices.IsSorted(r.levels)
 }
 
-func isLevelDecr(level []int) bool {
-	return slices.IsSortedFunc(level, func(a, b int) int {
+func (r report) isLevelDecr() bool {
+	return slices.IsSortedFunc(r.levels, func(a, b int) int {
 		if a == b {
 			return 0
 		} else if a < b {
@@ -36,9 +40,9 @@ func isLevelDecr(level []int) bool {
 	})
 }
 
-func isAdjacentLevelDifferenceAcceptable(intLevels []int) bool {
-	for i := 0; i < len(intLevels)-1; i++ {
-		differ := math.Abs(float64(intLevels[i] - intLevels[i+1]))
+func (r report) isAdjacentLevelDifferenceAcceptable() bool {
+	for i := 0; i < len(r.levels)-1; i++ {
+		differ := math.Abs(float64(r.levels[i] - r.levels[i+1]))
 		if !(differ >= 1 && differ <= 3) {
 			return false
 		}
@@ -46,13 +50,13 @@ func isAdjacentLevelDifferenceAcceptable(intLevels []int) bool {
 	return true
 }
 
-func isReportSafe(report []int) bool {
-	return isLevelIncrOrDecr(report) && isAdjacentLevelDifferenceAcceptable(report)
+func (r report) isReportSafe() bool {
+	return r.isLevelsIncrOrDecr() && r.isAdjacentLevelDifferenceAcceptable()
 }
 
-func removeLevel(index int, levels []int) []int {
+func (r report) removeLevel(index int) []int {
 	var newReport []int
-	for i, elem := range levels {
+	for i, elem := range r.levels {
 		if i != index {
 			newReport = append(newReport, elem)
 		}
@@ -60,14 +64,14 @@ func removeLevel(index int, levels []int) []int {
 	return newReport
 }
 
-func isReportSafeProblemDampener(levels []int) bool {
-	if isReportSafe(levels) {
+func (r report) isReportSafeProblemDampener() bool {
+	if r.isReportSafe() {
 		return true
 	}
 
-	for i := range levels {
-		levelDanpened := removeLevel(i, levels)
-		if isReportSafe(levelDanpened) {
+	for i := range r.levels {
+		levelDanpened := report{r.removeLevel(i)}
+		if levelDanpened.isReportSafe() {
 			return true
 		}
 	}
@@ -78,8 +82,9 @@ func isReportSafeProblemDampener(levels []int) bool {
 func Part1() string {
 	levels := strings.Split(input, "\n")
 	reportsSafe := 0
-	for _, report := range levels {
-		if report != "" && isReportSafe(util.ConvertStringArrayToInt(strings.Fields(report))) {
+	for _, reportStr := range levels {
+		report := report{util.ConvertStringArrayToInt(strings.Fields(reportStr))}
+		if reportStr != "" && report.isReportSafe() {
 			reportsSafe++
 		}
 	}
@@ -90,8 +95,9 @@ func Part2() string {
 	reports := strings.Split(input, "\n")
 	reportsSafe := 0
 
-	for _, report := range reports {
-		if report != "" && isReportSafeProblemDampener(util.ConvertStringArrayToInt(strings.Fields(report))) {
+	for _, reportStr := range reports {
+		report := report{util.ConvertStringArrayToInt(strings.Fields(reportStr))}
+		if reportStr != "" && report.isReportSafeProblemDampener() {
 			reportsSafe++
 		}
 	}
